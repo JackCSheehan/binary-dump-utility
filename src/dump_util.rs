@@ -7,7 +7,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 // Number of columns to display in file and in console
-pub const COLUMNS: usize = 4;
+const COLUMNS: usize = 4;
 
 /*
 Enum used to indicate which display mode to use when writing to file or dumping
@@ -20,6 +20,7 @@ pub enum DisplayMode
     Octal,
     Decimal,
     ASCII,
+    NoneDefault,    // Default value for no display mode
 }
 
 /*
@@ -39,7 +40,8 @@ pub fn display_dump(bytes: Vec<u8>, display_mode: DisplayMode)
             DisplayMode::Binary => print!("{:0>8b} ", byte),
             DisplayMode::Octal => print!("{:0>3o} ", byte),
             DisplayMode::Decimal => print!("{:0>3} ", byte),
-            DisplayMode::ASCII => print!("{} ", *byte as char)
+            DisplayMode::ASCII => print!("{} ", *byte as char),
+            DisplayMode::NoneDefault => (),
         };
 
         // Add newline after 4 bytes for nice formatting
@@ -73,7 +75,8 @@ pub fn write_dump(bytes: Vec<u8>, display_mode: DisplayMode, file_name: &str)
             DisplayMode::Binary => write_binary(&mut new_file, bytes[byte_count], file_name),
             DisplayMode::Octal => write_octal(&mut new_file, bytes[byte_count], file_name),
             DisplayMode::Decimal => write_decimal(&mut new_file, bytes[byte_count], file_name),
-            DisplayMode::ASCII => write_ascii(&mut new_file, bytes[byte_count], file_name)  
+            DisplayMode::ASCII => write_ascii(&mut new_file, bytes[byte_count], file_name),
+            DisplayMode::NoneDefault => (),
         };
         
         // Add newline after 4 bytes for nice formatting

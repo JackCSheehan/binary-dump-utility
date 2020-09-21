@@ -10,6 +10,7 @@ pub const CONSOLE_FLAG: &str = "-c";    // Indicates that dump should be display
 pub const FILE_FLAG: &str = "-f";       // Indicates that dump should be written to file
 pub const HEX_FLAG: &str = "-h";        // Dump as hex
 pub const BINARY_FLAG: &str = "-b";     // Dump as binary
+pub const DECIMAL_FLAG: &str = "-d";    // Dump as decimal
 pub const OCTAL_FLAG: &str = "-o";      // Dump as octal
 pub const ASCII_FLAG: &str = "-a";      // Dump as ASCII
 
@@ -20,10 +21,10 @@ const READ_FILE_INDEX: usize = 3;
 const WRITE_FILE_INDEX: usize = 4;
 
 // Constants for expected arg counts
-const CONSOLE_EXPECTED_ARGS: usize = 3; // Total number of expected args for dumping to console
+const CONSOLE_EXPECTED_ARGS: usize = 4; // Total number of expected args for dumping to console
 const FILE_EXPECTED_ARGS: usize = 5;    // Total number of expected args for dumping to file
 
-//dump-util -c -h
+//dump-util -c -h hello.txt
 //dump-util -f -o hello.txt output.txt
 /*
 Structure used for storing and organizing command line arguments
@@ -66,17 +67,18 @@ impl CommandLineArgs
         let read_file_path;
         let write_file_path;
 
-        // Get file paths if they were passed to command line
-        if args.len() == FILE_EXPECTED_ARGS
+        // Get the file to read from
+        read_file_path = args[READ_FILE_INDEX].clone();
+
+        // Get write file path if dumping to file
+        if destination_flag == FILE_FLAG
         {
-            // If there was the expected number of args for a file dump, get file path from args
-            read_file_path = args[READ_FILE_INDEX].clone();
             write_file_path = args[WRITE_FILE_INDEX].clone();
         }
+        // Get source file if dumping
         else
         {
-            // If dumping to CMD, provide blank string to file paths
-            read_file_path = String::new();
+            // If dumping to CMD, provide blank string to write path
             write_file_path = String::new();
         };
 
