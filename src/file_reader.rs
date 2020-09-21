@@ -1,5 +1,5 @@
 /*
-Module for reading and writing file info
+Module for reading binary file info
 */
 
 use std::fs::File;
