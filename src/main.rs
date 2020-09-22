@@ -2,10 +2,12 @@ mod file_reader;
 mod dump_util;
 mod cmd_arg_parser;
 
-fn main()
+use std::io;
+
+fn main() -> Result<(), io::Error>
 {
     // Get arguments from the command line
-    let args = cmd_arg_parser::CommandLineArgs::from_args();
+    let args = cmd_arg_parser::CommandLineArgs::from_args()?;
     
     // Get base based on user's given base flag
     let base = match &args.base_flag[..]
@@ -24,11 +26,13 @@ fn main()
     // If the user is dumping to file
     if args.destination_flag == cmd_arg_parser::FILE_FLAG
     {
-        dump_util::write_dump(contents, base, &args.write_file_path);
+        dump_util::write_dump(contents?, base, &args.write_file_path)?;
     }
     // If the user is dumping to console
     else
     {
-        dump_util::display_dump(contents, base);
+        dump_util::display_dump(contents?, base);
     }
+
+    Ok(())
 }

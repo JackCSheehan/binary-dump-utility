@@ -4,6 +4,7 @@ command line args
 */
 
 use std::env;
+use std::io;
 
 // Constants for command line flags and arguments
 pub const CONSOLE_FLAG: &str = "-c";    // Indicates that dump should be displayed to console
@@ -43,26 +44,28 @@ impl CommandLineArgs
     Constructs and returns a new CommandLineArgs struct based on args passed to
     the command line
     */
-    pub fn from_args() -> Self
+    pub fn from_args() -> Result<Self, io::Error>
     {
         // Get args from command line
         let args: Vec<String> = env::args().collect();
 
         // Error checking for minimum required size
+        /*
         if args.len() < CONSOLE_EXPECTED_ARGS
         {
-            panic!("ERROR: Expected at least {} arguments", CONSOLE_EXPECTED_ARGS - 1);
-        }
+            return Err(false)
+        }*/
         
         // Get flags based on expected indexes
         let destination_flag = args[DESTINATION_FLAG_INDEX].clone();
         let base_flag = args[BASE_FLAG_INDEX].clone();
 
         // Error checking to ensure file arg is provided to file dump command
+        /*
         if destination_flag == FILE_FLAG && args.len() < FILE_EXPECTED_ARGS 
         {
             panic!("ERROR: Too few arguments for file dump. Need a file name to write to");
-        }
+        }*/
 
         let read_file_path;
         let write_file_path;
@@ -82,12 +85,12 @@ impl CommandLineArgs
             write_file_path = String::new();
         };
 
-        Self
-        {
-            destination_flag,
-            base_flag,
-            read_file_path,
-            write_file_path
-        }
+        Ok(Self
+            {
+                destination_flag,
+                base_flag,
+                read_file_path,
+                write_file_path
+            })
     }
 }

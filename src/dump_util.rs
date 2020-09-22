@@ -5,6 +5,7 @@ binary file dump
 
 use std::fs::File;
 use std::io::prelude::*;
+use std::io;
 
 // Number of columns to display in file and in console
 const COLUMNS: usize = 4;
@@ -41,7 +42,7 @@ pub fn display_dump(bytes: Vec<u8>, display_mode: DisplayMode)
             DisplayMode::Octal => print!("{:0>3o} ", byte),
             DisplayMode::Decimal => print!("{:0>3} ", byte),
             DisplayMode::ASCII => print!("{} ", *byte as char),
-            DisplayMode::NoneDefault => (),
+            _ => (),
         };
 
         // Add newline after 4 bytes for nice formatting
@@ -53,14 +54,10 @@ pub fn display_dump(bytes: Vec<u8>, display_mode: DisplayMode)
 Writes the binary file dump to a local file. Takes a vector of bytes to write, a display mode,
 and a string slice with the name of the file to create when writing
 */
-pub fn write_dump(bytes: Vec<u8>, display_mode: DisplayMode, file_name: &str)
+pub fn write_dump(bytes: Vec<u8>, display_mode: DisplayMode, file_name: &str) -> Result<(), io::Error>
 {
     // Create new file based on given file name
-    let mut new_file = match File::create(file_name)
-    {
-        Err(_) => panic!("File {} could not be created!", file_name),
-        Ok(file) => file,
-    };
+    let mut new_file = File::create(file_name)?;
 
     // Byte counter for writing loop
     let mut byte_count = 0;
@@ -71,83 +68,71 @@ pub fn write_dump(bytes: Vec<u8>, display_mode: DisplayMode, file_name: &str)
         // Pick specific writing function based on display mode parameter
         match display_mode
         {
-            DisplayMode::Hex => write_hex(&mut new_file, bytes[byte_count], file_name),
-            DisplayMode::Binary => write_binary(&mut new_file, bytes[byte_count], file_name),
-            DisplayMode::Octal => write_octal(&mut new_file, bytes[byte_count], file_name),
-            DisplayMode::Decimal => write_decimal(&mut new_file, bytes[byte_count], file_name),
-            DisplayMode::ASCII => write_ascii(&mut new_file, bytes[byte_count], file_name),
-            DisplayMode::NoneDefault => (),
+            DisplayMode::Hex => {write_hex(&mut new_file, bytes[byte_count], file_name)?; 0},
+            DisplayMode::Binary => {write_binary(&mut new_file, bytes[byte_count], file_name)?; 0},
+            DisplayMode::Octal => {write_octal(&mut new_file, bytes[byte_count], file_name)?; 0},
+            DisplayMode::Decimal => {write_decimal(&mut new_file, bytes[byte_count], file_name)?; 0},
+            DisplayMode::ASCII => {write_ascii(&mut new_file, bytes[byte_count], file_name)?; 0},
+            _ => 0,
         };
         
         // Add newline after 4 bytes for nice formatting
         if (byte_count + 1) % COLUMNS == 0 
         { 
-            match new_file.write(b"\n")
-            {
-                Err(_) => panic!("Could not write to file {}", file_name),
-                Ok(_) => (),
-            };
+            new_file.write(b"\n")?;
         }
         byte_count += 1;
-    }   
+    }
+
+    Ok(())  
 }
 
 /*
 Helper method to write given byte to given file formatted a hex number
 */
-fn write_hex(file: &mut File, byte: u8, file_name: &str)
+fn write_hex(file: &mut File, byte: u8, file_name: &str) -> Result<(), io::Error>
 {
-    match file.write_fmt(format_args!("{:0>2x} ", byte))
-    {
-        Err(_) => panic!("Could not write to file {}", file_name),
-        Ok(_) => (),
-    };
+    file.write_fmt(format_args!("{:0>2x} ", byte))?;
+
+    Ok(())
 }
 
 /*
 Helper method to write given byte to given file formatted a binary number
 */
-fn write_binary(file: &mut File, byte: u8, file_name: &str)
+fn write_binary(file: &mut File, byte: u8, file_name: &str) -> Result<(), io::Error>
 {
-    match file.write_fmt(format_args!("{:0>8b} ", byte))
-    {
-        Err(_) => panic!("Could not write to file {}", file_name),
-        Ok(_) => (),
-    };
+    file.write_fmt(format_args!("{:0>8b} ", byte))?;
+
+    Ok(())
 }
 
 /*
 Helper method to write given byte to given file formatted an octal number
 */
-fn write_octal(file: &mut File, byte: u8, file_name: &str)
+fn write_octal(file: &mut File, byte: u8, file_name: &str) -> Result<(), io::Error>
 {
-    match file.write_fmt(format_args!("{:0>3o} ", byte))
-    {
-        Err(_) => panic!("Could not write to file {}", file_name),
-        Ok(_) => (),
-    };
+    file.write_fmt(format_args!("{:0>3o} ", byte))?;
+
+    Ok(())
 }
 
 /*
 Helper method to write given byte to given file formatted a decimal number
 */
-fn write_decimal(file: &mut File, byte: u8, file_name: &str)
+fn write_decimal(file: &mut File, byte: u8, file_name: &str) -> Result<(), io::Error>
 {
-    match file.write_fmt(format_args!("{:0>3} ", byte))
-    {
-        Err(_) => panic!("Could not write to file {}", file_name),
-        Ok(_) => (),
-    };
+    file.write_fmt(format_args!("{:0>3} ", byte))?;
+
+    Ok(())
 }
 
 /*
 Helper method to write given byte to given file formatted an ASCII character
 */
-fn write_ascii(file: &mut File, byte: u8, file_name: &str)
+fn write_ascii(file: &mut File, byte: u8, file_name: &str) -> Result<(), io::Error>
 {
-    match file.write_fmt(format_args!("{} ", byte as char))
-    {
-        Err(_) => panic!("Could not write to file {}", file_name),
-        Ok(_) => (),
-    };
+    file.write_fmt(format_args!("{} ", byte as char))?;
+
+    Ok(())
 }
