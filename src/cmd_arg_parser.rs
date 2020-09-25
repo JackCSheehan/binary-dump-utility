@@ -4,10 +4,8 @@ command line args
 */
 
 use std::env;
-use std::io;
 
 // Constants for command line flags and arguments
-pub const CONSOLE_FLAG: &str = "-c";    // Indicates that dump should be displayed to console
 pub const FILE_FLAG: &str = "-f";       // Indicates that dump should be written to file
 pub const HEX_FLAG: &str = "-h";        // Dump as hex
 pub const BINARY_FLAG: &str = "-b";     // Dump as binary
@@ -25,8 +23,14 @@ const WRITE_FILE_INDEX: usize = 4;
 const CONSOLE_EXPECTED_ARGS: usize = 4; // Total number of expected args for dumping to console
 const FILE_EXPECTED_ARGS: usize = 5;    // Total number of expected args for dumping to file
 
-//dump-util -c -h hello.txt
-//dump-util -f -o hello.txt output.txt
+/*
+Enum used for indicating that there was some error parsing args
+*/
+pub enum CMDArgError
+{
+    TooFewArguments,
+}
+
 /*
 Structure used for storing and organizing command line arguments
 */
@@ -44,28 +48,26 @@ impl CommandLineArgs
     Constructs and returns a new CommandLineArgs struct based on args passed to
     the command line
     */
-    pub fn from_args() -> Result<Self, io::Error>
+    pub fn from_args() -> Result<Self, CMDArgError>
     {
         // Get args from command line
         let args: Vec<String> = env::args().collect();
 
         // Error checking for minimum required size
-        /*
         if args.len() < CONSOLE_EXPECTED_ARGS
         {
-            return Err(false)
-        }*/
+            return Err(CMDArgError::TooFewArguments);
+        }
         
         // Get flags based on expected indexes
         let destination_flag = args[DESTINATION_FLAG_INDEX].clone();
         let base_flag = args[BASE_FLAG_INDEX].clone();
 
         // Error checking to ensure file arg is provided to file dump command
-        /*
         if destination_flag == FILE_FLAG && args.len() < FILE_EXPECTED_ARGS 
         {
-            panic!("ERROR: Too few arguments for file dump. Need a file name to write to");
-        }*/
+            return Err(CMDArgError::TooFewArguments);
+        }
 
         let read_file_path;
         let write_file_path;
